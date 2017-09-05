@@ -1,4 +1,6 @@
 # SiteMapper
+[![Build Status](https://travis-ci.org/tkuhlman/sitemapper.svg)](https://travis-ci.org/tkuhlman/sitemapper)
+
 A tool for creating a site map from a starting URL.
 
 Starting the mapper is done by simply running the binary with a starting URL and optional flag to specify the number of workers.
