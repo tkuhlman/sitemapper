@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	pageCount = prometheus.NewCounter(prometheus.CounterOpts{
+	pageCount = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "page_count",
 		Help: "Current count of pages in the site being mapped",
 	})
-	pagesVisited = prometheus.NewGauge(prometheus.GaugeOpts{
+	pagesVisited = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "pages_visited",
 		Help: "The number of pages for which an HTTP GET has been attempted.",
 	})

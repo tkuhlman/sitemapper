@@ -10,7 +10,7 @@ The site map itself is a simple directed graph which can be downloaded as a JSON
 ## Building
 
 All changes are built and tested using [Travis CI](https://travis-ci.org/), see the build status icon.
-To build manually either use `go install github.com/tkuhlman/sitemapper` or download the source and use [dep](https://github.com/golang/dep), for example:
+To build manually download the source and use [dep](https://github.com/golang/dep), for example:
 
     git clone https://github.com/tkuhlman/sitemapper
     cd sitemapper
