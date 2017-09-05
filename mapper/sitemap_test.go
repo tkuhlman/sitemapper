@@ -145,27 +145,27 @@ func TestStart(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantPages := map[string]*page{
-		"/": &page{
+		"/": {
 			Links:   map[string]int{"/hello-world": 1, "/values": 1, "/variables": 1},
 			URL:     baseURL,
 			Visited: true,
 		},
-		"/hello-world": &page{
+		"/hello-world": {
 			Links:   map[string]int{"/": 1, "/values": 1},
 			URL:     baseURL.ResolveReference(&url.URL{Path: "/hellow-world"}),
 			Visited: true,
 		},
-		"/values": &page{
+		"/values": {
 			Links:   map[string]int{"/": 1, "/variables": 1},
 			URL:     baseURL.ResolveReference(&url.URL{Path: "/values"}),
 			Visited: true,
 		},
-		"/variables": &page{
+		"/variables": {
 			Links:   map[string]int{"/": 1, "/constants": 1},
 			URL:     baseURL.ResolveReference(&url.URL{Path: "/variables"}),
 			Visited: true,
 		},
-		"/constants": &page{
+		"/constants": {
 			Links:   map[string]int{},
 			Broken:  true,
 			URL:     baseURL.ResolveReference(&url.URL{Path: "/constants"}),
