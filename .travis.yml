@@ -2,5 +2,19 @@ language: go
 go:
   - 1.8
 
+install:
+  - go get -u github.com/golang/dep/...
+  - dep ensure
+  - go get github.com/mattn/goveralls
+
 script:
-    - go test -v -race ./...
+  - go test -v -race $(go list ./... | grep -v "/vendor/")
+  - go test -coverprofile=coverage.txt ./mapper
+  - go build --ldflags '-linkmode external -extldflags "-static"' -o sitemapper ./main.go
+
+after_success:
+  - goveralls -coverprofile=coverage.txt -service=travis-ci
+
+notifications:
+  email:
+    - tim@backgroundprocess.com

@@ -1,6 +1,7 @@
 # SiteMapper
 [![Build Status](https://travis-ci.org/tkuhlman/sitemapper.svg)](https://travis-ci.org/tkuhlman/sitemapper)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tkuhlman/sitemapper)](https://goreportcard.com/report/github.com/tkuhlman/sitemapper)
+[![Coverage Status](https://coveralls.io/repos/tkuhlman/sitemapper/badge.svg?branch=master&service=github)](https://coveralls.io/github/tkuhlman/sitemapper?branch=master)
 
 A tool for creating a site map from a starting URL.
 
