@@ -19,6 +19,10 @@ script:
 after_success:
   - goveralls -coverprofile=coverage.txt -service=travis-ci
   - docker build -t tkuhlman/sitemapper .
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push tkuhlman/sitemapper;
+    fi
 
 notifications:
   email:
