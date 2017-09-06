@@ -2,6 +2,10 @@ language: go
 go:
   - 1.8
 
+services:
+  - docker
+sudo: required
+
 install:
   - go get -u github.com/golang/dep/...
   - dep ensure
@@ -10,10 +14,11 @@ install:
 script:
   - go test -v -race $(go list ./... | grep -v "/vendor/")
   - go test -coverprofile=coverage.txt ./mapper
-  - go build --ldflags '-linkmode external -extldflags "-static"' -o sitemapper ./main.go
+  - GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o sitemapper ./main.go
 
 after_success:
   - goveralls -coverprofile=coverage.txt -service=travis-ci
+  - docker build -t tkuhlman/sitemapper .
 
 notifications:
   email:

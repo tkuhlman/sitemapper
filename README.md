@@ -1,12 +1,12 @@
 # SiteMapper
 [![Build Status](https://travis-ci.org/tkuhlman/sitemapper.svg)](https://travis-ci.org/tkuhlman/sitemapper)
 [![Go Report Card](https://goreportcard.com/badge/github.com/tkuhlman/sitemapper)](https://goreportcard.com/report/github.com/tkuhlman/sitemapper)
-[![Coverage Status](https://coveralls.io/repos/tkuhlman/sitemapper/badge.svg?branch=master&service=github)](https://coveralls.io/github/tkuhlman/sitemapper?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/tkuhlman/sitemapper/badge.svg?branch=master)](https://coveralls.io/github/tkuhlman/sitemapper?branch=master)
 
 A tool for creating a site map from a starting URL.
 
 Starting the mapper is done by simply running the binary with a starting URL and optional flag to specify the number of workers.
-Running the Docker container is the easiest `docker run tkuhlman/sitemapper mysite.com`.
+Running the Docker container is the easiest `docker run --rm tkuhlman/sitemapper mysite.com`.
 
 When finished a local website displaying the results will be started up.
 The site map itself is a simple directed graph which can be downloaded as a JSON file or displayed by the embedded web server.
