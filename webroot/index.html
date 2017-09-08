@@ -1,0 +1,34 @@
+<html>
+<head>
+<style type="text/css">
+  #container {
+    max-width: 800px;
+    height: 600px;
+    margin: auto;
+  }
+</style>
+</head>
+<body>
+  <p>Raw Prometheus metrics, including page_count and pages_visited can be found at <a href="/metrics">/metrics</a></p>
+  <p>Raw json used for the graph is at <a href="/json">/json</a></p>
+  <p>This sitemap is presented using <a href="http://sigmajs.org/">sigmajs</a>.</p>
+<div id="container"></div>
+<script src="/sigma.js/sigma.min.js"></script>
+<script src="/sigma.js/sigma.parsers.json.min.js"></script>
+<script src="/sigma.js/sigma.layout.noverlap.min.js"></script>
+<script src="/sigma.js/sigma.plugins.animate.min.js"></script>
+<script>
+  sigma.parsers.json('/json', {
+    container: 'container',
+    type: 'canvas',
+    settings: {
+      defaultEdgeType: 'arrow',
+      defaultEdgeArrow: 'target',
+      defaultNodeColor: '#7FC9F5',
+      minNodeSize: 2,
+      maxNodeSize: 2
+    }
+  });
+</script>
+</body>
+</html>

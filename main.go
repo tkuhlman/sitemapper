@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/tkuhlman/sitemapper/mapper"
@@ -37,27 +37,26 @@ func main() {
 
 	log.Printf("Crawling site %s", sm.URL)
 
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-	go sm.HandleSignals(signals)
+	crawlSignals := make(chan os.Signal, 2)
+	signal.Notify(crawlSignals, syscall.SIGINT, syscall.SIGTERM)
+	go sm.HandleSignals(crawlSignals)
 
 	if err := sm.Start(); err != nil {
 		log.Printf("Site crawling unfinished: %v", err)
 	}
 
-	// TODO determine the primary ip when listenAddress = 0.0.0.0
-	ip := "localhost"
-	log.Printf("The sitemap results are available at http://%s/", ip)
+	resultSignals := make(chan os.Signal, 2)
+	signal.Notify(resultSignals, syscall.SIGINT, syscall.SIGTERM)
 
-	// TODO wait for the web site to exit or to receive a SIGINT, see sitemap.shutdown channel
-	fmt.Printf("Site %s - %d pages\n", sm.URL, len(sm.Pages))
-	for path, p := range sm.Pages {
-		if p.Broken {
-			fmt.Printf("\t%s -> ! Broken\n", path)
-			continue
-		}
-		for subPath := range p.Links {
-			fmt.Printf("\t%s -> %s\n", path, subPath)
-		}
+	http.Handle("/", http.FileServer(http.Dir("./webroot/")))
+	http.Handle("/json", sm)
+	listenSplit := strings.SplitN(*listenAddress, ":", 2)
+	ip := listenSplit[0]
+	if listenSplit[0] == "0.0.0.0" {
+		ip = "localhost"
 	}
+	log.Printf("The sitemap results are available at http://%s:%s/", ip, listenSplit[1])
+	log.Print("Ctrl-C will stop the results webserver and exit.")
+
+	<-resultSignals
 }

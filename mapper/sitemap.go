@@ -3,9 +3,12 @@
 package mapper
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -78,10 +81,44 @@ func (sm *SiteMap) HandleSignals(signals <-chan os.Signal) {
 	// TODO add tests
 }
 
-// TODO
-func (sm *SiteMap) JSONMarshal() []byte {
-	// TODO, this may affect what is exported and if I store a string version of the url in the page
-	return nil
+// MarshalJSON outputs the JSON representaion of sm needed for use by sigmajs
+// to display a site map. It implements the json.Marshaller interface
+func (sm *SiteMap) MarshalJSON() ([]byte, error) {
+	type nodeJSON struct {
+		ID    string `json:"id"`
+		Label string `json:"label"`
+		X     int    `json:"x"`
+		Y     int    `json:"y"`
+		Size  int    `json:"size"`
+	}
+	type edgeJSON struct {
+		ID     string `json:"id"`
+		Source string `json:"source"`
+		Target string `json:"target"`
+	}
+	type smJSON struct {
+		Nodes []nodeJSON `json:"nodes"`
+		Edges []edgeJSON `json:"edges"`
+	}
+	j := smJSON{Nodes: []nodeJSON{}, Edges: []edgeJSON{}}
+
+	// TODO review what is exported
+	for id, p := range sm.Pages {
+		j.Nodes = append(j.Nodes, nodeJSON{ID: id, Label: id, X: rand.Intn(1000), Y: rand.Intn(1000)})
+		for path := range p.Links {
+			j.Edges = append(j.Edges, edgeJSON{ID: fmt.Sprintf("%s->%s", id, path), Source: id, Target: path})
+		}
+	}
+	return json.Marshal(j)
+}
+
+// ServeHTTP implments the http.Handler interface responding with sm marshaled
+// as JSON.
+func (sm *SiteMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	enc := json.NewEncoder(w)
+	if err := enc.Encode(sm); err != nil {
+		http.Error(w, fmt.Sprintf("failed to marshal sitemap as JSON: %v", err), http.StatusInternalServerError)
+	}
 }
 
 // Start begins crawling a website with the starting URL using the assigned

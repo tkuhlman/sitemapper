@@ -6,7 +6,7 @@
 A tool for creating a site map from a starting URL.
 
 Starting the mapper is done by simply running the binary with a starting URL and optional flag to specify the number of workers.
-Running the Docker container is the easiest `docker run --rm tkuhlman/sitemapper mysite.com`.
+Running the Docker container is the easiest `docker run --rm -p 8080:8080 tkuhlman/sitemapper mysite.com`.
 
 When finished a local website displaying the results will be started up.
 The site map itself is a simple directed graph which can be downloaded as a JSON file or displayed by the embedded web server.
