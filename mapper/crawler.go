@@ -69,10 +69,10 @@ func (c *crawler) stop() {
 // Crawler connects to the page and extract all the links populating p.Links.
 // Any non-200 response code will result in p.Broken being set to true.
 func (c *crawler) visit(p *page) {
-	p.Visited = true
-	body, err := c.get(p.URL.String())
+	p.visited = true
+	body, err := c.get(p.url.String())
 	if err != nil {
-		p.Broken = true
+		p.broken = true
 		p.err = err
 		return
 	}

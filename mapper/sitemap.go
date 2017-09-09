@@ -32,7 +32,7 @@ func init() {
 
 // SiteMap is the data structure in which a mapping of a website is built.
 type SiteMap struct {
-	Pages       map[string]*page // p.URL.Path for the string
+	pages       map[string]*page // p.URL.Path for the string
 	URL         *url.URL
 	shutdown    chan string
 	workerCount uint
@@ -64,7 +64,7 @@ func NewSiteMap(startPage string, workerCount uint) (*SiteMap, error) {
 		start.Path = "/"
 	}
 	return &SiteMap{
-		Pages:       map[string]*page{start.Path: newPage(start)},
+		pages:       map[string]*page{start.Path: newPage(start)},
 		URL:         siteURL,
 		shutdown:    make(chan string),
 		workerCount: workerCount,
@@ -101,20 +101,20 @@ func (sm *SiteMap) Start() error {
 		c.crawl(new, visited)
 	}
 
-	for _, p := range sm.Pages {
-		if !p.Visited {
+	for _, p := range sm.pages {
+		if !p.visited {
 			new <- p
 		}
 	}
 	var visitCount int
 	for {
-		pageCount.Set(float64(len(sm.Pages)))
-		if visitCount < len(sm.Pages) {
+		pageCount.Set(float64(len(sm.pages)))
+		if visitCount < len(sm.pages) {
 			select {
 			case p := <-visited:
 				visitCount++
 				pagesVisited.Inc()
-				toVisit := sm.addPages(p.Links)
+				toVisit := sm.addPages(p.links)
 				go func() { // add to new without blocking processing of visited
 					for _, p := range toVisit {
 						new <- p
@@ -124,7 +124,7 @@ func (sm *SiteMap) Start() error {
 				c.stop()
 				return fmt.Errorf("received shutdown signal %s", msg)
 			}
-		} else if visitCount == len(sm.Pages) {
+		} else if visitCount == len(sm.pages) {
 			return nil
 		}
 	}
@@ -135,14 +135,14 @@ func (sm *SiteMap) Start() error {
 func (sm *SiteMap) addPages(links map[string]int) []*page {
 	var pages []*page
 	for path := range links {
-		if _, ok := sm.Pages[path]; !ok {
+		if _, ok := sm.pages[path]; !ok {
 			u, err := url.Parse(path)
 			if err != nil {
 				log.Printf("failed to parse relative path %q from page link, all these paths should be prevetted", path)
 				continue
 			}
 			p := newPage(sm.URL.ResolveReference(u))
-			sm.Pages[path] = p
+			sm.pages[path] = p
 			pages = append(pages, p)
 		}
 	}

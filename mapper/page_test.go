@@ -25,8 +25,8 @@ func TestAddLinks(t *testing.T) {
 	p := newPage(testPageURL)
 	p.addLinks(testLinks)
 
-	if !reflect.DeepEqual(p.Links, wantLinks) {
-		t.Errorf("Got links %+v, want %+v", p.Links, wantLinks)
+	if !reflect.DeepEqual(p.links, wantLinks) {
+		t.Errorf("Got links %+v, want %+v", p.links, wantLinks)
 	}
 }
 

@@ -81,12 +81,12 @@ func TestNewSiteMap(t *testing.T) {
 			t.Errorf("Test %q - got error, want nil: %v", test.name, err)
 		case err == nil && test.wantErr:
 			t.Errorf("Test %q - got nil, want error", test.name)
-		case test.wantURL != nil && len(sm.Pages) != 1:
-			t.Errorf("Test %q - got %d pages, want 1", test.name, len(sm.Pages))
+		case test.wantURL != nil && len(sm.pages) != 1:
+			t.Errorf("Test %q - got %d pages, want 1", test.name, len(sm.pages))
 		case test.wantURL != nil && !reflect.DeepEqual(sm.URL, test.wantURL):
 			t.Errorf("Test %q - got url %q, want %q", test.name, sm.URL, test.wantURL)
-		case test.wantStartURL != nil && !reflect.DeepEqual(sm.Pages[test.wantStartURL.Path].URL, test.wantStartURL):
-			t.Errorf("Test %q - got start url %q, want %q", test.name, sm.Pages[test.wantStartURL.Path].URL, test.wantStartURL)
+		case test.wantStartURL != nil && !reflect.DeepEqual(sm.pages[test.wantStartURL.Path].url, test.wantStartURL):
+			t.Errorf("Test %q - got start url %q, want %q", test.name, sm.pages[test.wantStartURL.Path].url, test.wantStartURL)
 		}
 	}
 }
@@ -97,7 +97,7 @@ func TestAddPages(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(sm.Pages) != 1 {
+	if len(sm.pages) != 1 {
 		t.Fatalf("Expected to start with a single page")
 	}
 
@@ -107,11 +107,11 @@ func TestAddPages(t *testing.T) {
 	if got, want := len(newPages), len(set1); got != want {
 		t.Errorf("Got %d new pages, want %d", got, want)
 	}
-	if got, want := len(sm.Pages), len(set1)+1; got != want {
+	if got, want := len(sm.pages), len(set1)+1; got != want {
 		t.Errorf("Got sm.Pages length %d, want %d", got, want)
 	}
 	for _, p := range newPages {
-		path := p.URL.Path
+		path := p.url.Path
 		if _, ok := set1[path]; !ok {
 			t.Errorf("Path %q is an unexpected new page", path)
 		}
@@ -125,11 +125,11 @@ func TestAddPages(t *testing.T) {
 	if got, want := len(newPages), 2; got != want {
 		t.Errorf("Got %d new pages, want %d", got, want)
 	}
-	if got, want := len(sm.Pages), len(set2)+1; got != want {
+	if got, want := len(sm.pages), len(set2)+1; got != want {
 		t.Errorf("Got sm.Pages length %d, want %d", got, want)
 	}
 	for _, p := range newPages {
-		path := p.URL.Path
+		path := p.url.Path
 		if _, ok := set2[path]; !ok {
 			t.Errorf("Path %q is an unexpected new page", path)
 		}
@@ -146,30 +146,30 @@ func TestStart(t *testing.T) {
 	}
 	wantPages := map[string]*page{
 		"/": {
-			Links:   map[string]int{"/hello-world": 1, "/values": 1, "/variables": 1},
-			URL:     baseURL,
-			Visited: true,
+			links:   map[string]int{"/hello-world": 1, "/values": 1, "/variables": 1},
+			url:     baseURL,
+			visited: true,
 		},
 		"/hello-world": {
-			Links:   map[string]int{"/": 1, "/values": 1},
-			URL:     baseURL.ResolveReference(&url.URL{Path: "/hellow-world"}),
-			Visited: true,
+			links:   map[string]int{"/": 1, "/values": 1},
+			url:     baseURL.ResolveReference(&url.URL{Path: "/hellow-world"}),
+			visited: true,
 		},
 		"/values": {
-			Links:   map[string]int{"/": 1, "/variables": 1},
-			URL:     baseURL.ResolveReference(&url.URL{Path: "/values"}),
-			Visited: true,
+			links:   map[string]int{"/": 1, "/variables": 1},
+			url:     baseURL.ResolveReference(&url.URL{Path: "/values"}),
+			visited: true,
 		},
 		"/variables": {
-			Links:   map[string]int{"/": 1, "/constants": 1},
-			URL:     baseURL.ResolveReference(&url.URL{Path: "/variables"}),
-			Visited: true,
+			links:   map[string]int{"/": 1, "/constants": 1},
+			url:     baseURL.ResolveReference(&url.URL{Path: "/variables"}),
+			visited: true,
 		},
 		"/constants": {
-			Links:   map[string]int{},
-			Broken:  true,
-			URL:     baseURL.ResolveReference(&url.URL{Path: "/constants"}),
-			Visited: true,
+			links:   map[string]int{},
+			broken:  true,
+			url:     baseURL.ResolveReference(&url.URL{Path: "/constants"}),
+			visited: true,
 		},
 	}
 
@@ -187,17 +187,17 @@ func TestStart(t *testing.T) {
 		t.Errorf("Start error: %v", err)
 	}
 
-	if got, want := len(sm.Pages), len(wantPages); got != want {
+	if got, want := len(sm.pages), len(wantPages); got != want {
 		t.Errorf("Got %d pages, want %d", got, want)
 	}
-	for path, page := range sm.Pages {
+	for path, page := range sm.pages {
 		wantPage, ok := wantPages[path]
 		if !ok {
 			t.Errorf("Got unwanted path %q", path)
 			continue
 		}
-		if !reflect.DeepEqual(page.Links, wantPage.Links) {
-			t.Errorf("Path %q got links\n%v\nwant links\n%v\n", path, page.Links, wantPage.Links)
+		if !reflect.DeepEqual(page.links, wantPage.links) {
+			t.Errorf("Path %q got links\n%v\nwant links\n%v\n", path, page.links, wantPage.links)
 		}
 	}
 }

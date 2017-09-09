@@ -31,14 +31,13 @@ type smJSON struct {
 func (sm *SiteMap) MarshalJSON() ([]byte, error) {
 	j := smJSON{Nodes: []nodeJSON{}, Edges: []edgeJSON{}}
 
-	// TODO review what is exported
-	for id, p := range sm.Pages {
+	for id, p := range sm.pages {
 		n := nodeJSON{ID: id, Label: id, X: rand.Intn(1000), Y: rand.Intn(1000)}
-		if p.Broken {
+		if p.broken {
 			n.Color = failColor
 		}
 		j.Nodes = append(j.Nodes, n)
-		for path := range p.Links {
+		for path := range p.links {
 			j.Edges = append(j.Edges, edgeJSON{ID: fmt.Sprintf("%s->%s", id, path), Source: id, Target: path})
 		}
 	}

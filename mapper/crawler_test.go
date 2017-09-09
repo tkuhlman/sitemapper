@@ -31,10 +31,10 @@ func TestCrawl(t *testing.T) {
 	c.stop()
 
 	got := <-finished
-	if got.URL != p.URL {
-		t.Errorf("Got url %q, want %q", got.URL, p.URL)
+	if got.url != p.url {
+		t.Errorf("Got url %q, want %q", got.url, p.url)
 	}
-	if !got.Visited {
+	if !got.visited {
 		t.Error("Finished page unvisited")
 	}
 }
@@ -112,7 +112,7 @@ func TestVisit(t *testing.T) {
 	p := newPage(u)
 
 	c.visit(p)
-	if !reflect.DeepEqual(p.Links, wantLinks) {
-		t.Errorf("Got links %v, want %v", p.Links, wantLinks)
+	if !reflect.DeepEqual(p.links, wantLinks) {
+		t.Errorf("Got links %v, want %v", p.links, wantLinks)
 	}
 }

@@ -5,16 +5,16 @@ import "net/url"
 // page represents a single page within the site map. It tracks the links
 // to the from this page to other paths on the same site.
 type page struct {
-	Broken  bool
-	Links   map[string]int // string is the relative path, int a count of the number of links
-	URL     *url.URL
-	Visited bool
+	broken  bool
+	links   map[string]int // string is the relative path, int a count of the number of links
+	url     *url.URL
+	visited bool
 	err     error
 }
 
 // newPage returns a new unvisited page.
 func newPage(url *url.URL) *page {
-	return &page{Links: map[string]int{}, URL: url}
+	return &page{links: map[string]int{}, url: url}
 }
 
 // addLinks will filter out any self links and links outside the base site
@@ -22,7 +22,7 @@ func newPage(url *url.URL) *page {
 func (p *page) addLinks(links []string) {
 	for _, link := range links {
 		if linkPath, ok := p.filterLink(link); ok {
-			p.Links[linkPath]++
+			p.links[linkPath]++
 		}
 	}
 }
@@ -37,7 +37,7 @@ func (p *page) filterLink(link string) (string, bool) {
 		return "", false
 	}
 	if linkURL.Scheme == "" {
-		linkURL = p.URL.ResolveReference(linkURL)
+		linkURL = p.url.ResolveReference(linkURL)
 	}
 	if linkURL.Path == "" {
 		linkURL.Path = "/"
@@ -45,7 +45,7 @@ func (p *page) filterLink(link string) (string, bool) {
 	if linkURL.Scheme != "http" && linkURL.Scheme != "https" {
 		return "", false
 	}
-	if linkURL.Host != p.URL.Host || linkURL.Path == p.URL.Path {
+	if linkURL.Host != p.url.Host || linkURL.Path == p.url.Path {
 		return "", false
 	}
 
