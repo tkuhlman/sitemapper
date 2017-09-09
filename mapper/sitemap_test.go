@@ -4,8 +4,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"reflect"
+	"syscall"
 	"testing"
+	"time"
 )
 
 func TestNewSiteMap(t *testing.T) {
@@ -132,6 +135,24 @@ func TestAddPages(t *testing.T) {
 		path := p.url.Path
 		if _, ok := set2[path]; !ok {
 			t.Errorf("Path %q is an unexpected new page", path)
+		}
+	}
+}
+
+func TestHandleSignals(t *testing.T) {
+	sm, err := NewSiteMap("http://localhost", 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pid := os.Getpid()
+	for _, sig := range []syscall.Signal{syscall.SIGINT, syscall.SIGTERM} {
+		if err := syscall.Kill(pid, sig); err != nil {
+			t.Fatalf("syscall Kill signal %s failed: %v", sig, err)
+		}
+		select {
+		case <-sm.shutdown:
+		case <-time.After(20 * time.Millisecond):
+			t.Errorf("Received no shutdown command for signal %s", sig)
 		}
 	}
 }

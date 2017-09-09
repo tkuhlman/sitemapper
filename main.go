@@ -37,16 +37,9 @@ func main() {
 
 	log.Printf("Crawling site %s", sm.URL)
 
-	crawlSignals := make(chan os.Signal, 2)
-	signal.Notify(crawlSignals, syscall.SIGINT, syscall.SIGTERM)
-	go sm.HandleSignals(crawlSignals)
-
 	if err := sm.Start(); err != nil {
 		log.Printf("Site crawling unfinished: %v", err)
 	}
-
-	resultSignals := make(chan os.Signal, 2)
-	signal.Notify(resultSignals, syscall.SIGINT, syscall.SIGTERM)
 
 	http.Handle("/", http.FileServer(http.Dir("./webroot/")))
 	http.Handle("/json", sm)
@@ -58,5 +51,8 @@ func main() {
 	log.Printf("The sitemap results are available at http://%s:%s/", ip, listenSplit[1])
 	log.Print("Ctrl-C will stop the results webserver and exit.")
 
+	// Waint for a SIGINT/SIGTERM before exit
+	resultSignals := make(chan os.Signal, 2)
+	signal.Notify(resultSignals, syscall.SIGINT, syscall.SIGTERM)
 	<-resultSignals
 }

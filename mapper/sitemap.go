@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -34,12 +36,13 @@ func init() {
 type SiteMap struct {
 	pages       map[string]*page // p.URL.Path for the string
 	URL         *url.URL
-	shutdown    chan string
+	shutdown    chan os.Signal
 	workerCount uint
 }
 
 // NewSiteMap returns a SiteMap initialized with the starting URL, path and the
-// number of workers used when crawling the site.
+// number of workers used when crawling the site. It also sets up signal
+// handling which stops crawling for SIGTERM or SIGINT.
 func NewSiteMap(startPage string, workerCount uint) (*SiteMap, error) {
 	if workerCount < 1 {
 		return nil, errors.New("workerCount for a SiteMap must be > 0")
@@ -63,21 +66,15 @@ func NewSiteMap(startPage string, workerCount uint) (*SiteMap, error) {
 	if start.Path == "" {
 		start.Path = "/"
 	}
-	return &SiteMap{
+	sm := &SiteMap{
 		pages:       map[string]*page{start.Path: newPage(start)},
 		URL:         siteURL,
-		shutdown:    make(chan string),
 		workerCount: workerCount,
-	}, nil
-}
+	}
 
-// HandleSignals reads any signals from the channel and shuts down a
-// running site crawl as appropriate. This function should run in a
-// go routine and signals should be registred with signal.Notify
-func (sm *SiteMap) HandleSignals(signals <-chan os.Signal) {
-	sig := <-signals
-	sm.shutdown <- sig.String()
-	// TODO add tests
+	sm.shutdown = make(chan os.Signal, 2)
+	signal.Notify(sm.shutdown, syscall.SIGINT, syscall.SIGTERM)
+	return sm, nil
 }
 
 // ServeHTTP implments the http.Handler interface responding with sm marshaled
@@ -90,7 +87,8 @@ func (sm *SiteMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Start begins crawling a website with the starting URL using the assigned
-// number of workers, exiting when the process is completed.
+// number of workers, exiting when the process is completed or when a signal
+// is received on the SiteMap shutdown channel.
 func (sm *SiteMap) Start() error {
 	// TODO setup performance tests to determine the best buffer sizes
 	new := make(chan *page, sm.workerCount*2)
@@ -120,9 +118,9 @@ func (sm *SiteMap) Start() error {
 						new <- p
 					}
 				}()
-			case msg := <-sm.shutdown:
+			case sig := <-sm.shutdown:
 				c.stop()
-				return fmt.Errorf("received shutdown signal %s", msg)
+				return fmt.Errorf("received shutdown signal %s", sig)
 			}
 		} else if visitCount == len(sm.pages) {
 			return nil
@@ -149,5 +147,3 @@ func (sm *SiteMap) addPages(links map[string]int) []*page {
 
 	return pages
 }
-
-// TODO add the web handler, it will need to display little info until things are done, at least until concurrency is fully handled.
