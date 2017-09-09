@@ -30,12 +30,13 @@ Tests can be run with `go test` as is standard for Golang.
   Most web servers redirect these slash mistakes this considers redirection an error.
 
 ## Wishlist
+- When a git tag is added, Travis CI should build a Docker image labelled with the tag.
 - Wrap updates to the SiteMap Pages in a sync.RWMutex or use sync.Map so the progress of the map as it builds can be watched from the embedded website.
 - Resume after pause.
 - Persistng the current progress and resuming from persisted data.
-- Rework to use neo4j or similar DB rather than an internal data structure.
-  An alternative is to put some more work into optimizing the internal data structure.
+- For each request of JSON node placement varies, make it consistent.
 - The ability to map multiple sites.
 - Intelligent updating of existing data to account for site changes.
+- Do some benchmarking, possibly with testing.B.
 - An overall timeout for the entire site crawl, this can be done with a ticker in a go routine that sends
   a shutdown signal or via adding to the select in sm.Start
