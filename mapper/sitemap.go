@@ -3,11 +3,9 @@
 package mapper
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -75,15 +73,6 @@ func NewSiteMap(startPage string, workerCount uint) (*SiteMap, error) {
 	sm.shutdown = make(chan os.Signal, 2)
 	signal.Notify(sm.shutdown, syscall.SIGINT, syscall.SIGTERM)
 	return sm, nil
-}
-
-// ServeHTTP implments the http.Handler interface responding with sm marshaled
-// as JSON.
-func (sm *SiteMap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	enc := json.NewEncoder(w)
-	if err := enc.Encode(sm); err != nil {
-		http.Error(w, fmt.Sprintf("failed to marshal sitemap as JSON: %v", err), http.StatusInternalServerError)
-	}
 }
 
 // Start begins crawling a website with the starting URL using the assigned
