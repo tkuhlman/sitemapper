@@ -51,7 +51,7 @@ func TestJSON(t *testing.T) {
 		t.Errorf("Start error: %v", err)
 	}
 
-	ln, err := net.Listen("tcp", "")
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	http.Handle("/json", sm)
 	go http.Serve(ln, nil)
 	resp, err := http.Get(fmt.Sprintf("http://%s/json", ln.Addr()))
