@@ -5,10 +5,12 @@
 
 A tool for creating a site map from a starting URL.
 
-Starting the mapper is done by simply running the binary with a starting URL and optional flag to specify the number of workers.
+Starting the mapper is done by simply running the binary with a starting URL and optional flags.
 Running the Docker container is the easiest `docker run --rm -p 8080:8080 tkuhlman/sitemapper mysite.com`.
 
-When finished a local website displaying the results will be started up.
+The default is to use 4 workers to crawl the site to modify that use the -w flag, ie `-w 50`.
+When finished a local website displaying the results will be started up on port 8080.
+To modify the listening port/ip use the `-l` flag, ie `-l 127.0.0.1:8090`.
 The site map itself is a simple directed graph which can be downloaded as a JSON file or displayed by the embedded web server.
 
 ## Building
@@ -24,6 +26,8 @@ To build manually download the source and use [dep](https://github.com/golang/de
 Tests can be run with `go test` as is standard for Golang.
 
 ## Limitations
+- If you stop the site part way through crawling a site sigma.js may have trouble rendering an image the
+  JSON at `/json` remains valid.
 - Only html pages are parsed for links and from these only anchor links are retreived so no links from forms, javascript, etc.
 - Any non 2XX status code is considered a failure, even redirects.
 - URL parsing is not forgiving of simple errors, '/site/', '/site' and '//site' are all different paths.
